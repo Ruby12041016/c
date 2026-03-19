@@ -144,29 +144,31 @@ void search_book() {
             }
             if (index == 0) {
                 printf("未找到%s！\n", name);
+                return;
             }
             break;
         case 2:
-            name[20];
+            char a_name[20];
             printf("请输入作者姓名：\n");
-            scanf("%19s", name);
-            index = -1;
+            scanf("%19s", a_name);
+            int a_index = -1;
             for (int i = 0; i < book_num; i++) {
-                if (strcmp(book[i].author, name) == 0) {
+                if (strcmp(book[i].author, a_name) == 0) {
                     printf(
                         "编号: %d\n书籍: %s\n作者: %s\n出版社: %s\n状态: %s\n",
                         book[i].id, book[i].name, book[i].author,
                         book[i].publish, status[book[i].statut]);
-                    index = 1;
+                    a_index = 1;
                 }
             }
-            if (index == -1) {
+            if (a_index == -1) {
                 printf("未找到该作者！\n");
+                return;
             }
             break;
         default:
             printf("请输入正确选项！\n");
-            break;
+            return;
     }
     printf("是否借阅该书(Y/N)：\n");
     char resp;
