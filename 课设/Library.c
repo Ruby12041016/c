@@ -127,13 +127,17 @@ void search_book() {
     printf("1. 按书名查询\n");
     printf("2. 按作者查询\n");
     int option;
+    char name[20];
+    char a_name[20];
+    int index = 0;
+    int a_index = -1;
+
     scanf("%d", &option);
     switch (option) {
         case 1:
-            char name[20];
             printf("请输入书名：\n");
             scanf("%19s", name);
-            int index = 0;
+            index = 0;
             for (int i = 0; i < book_num; i++) {
                 if (strcmp(book[i].name, name) == 0) {
                     index = 1;
@@ -149,10 +153,9 @@ void search_book() {
             }
             break;
         case 2:
-            char a_name[20];
             printf("请输入作者姓名：\n");
             scanf("%19s", a_name);
-            int a_index = -1;
+            a_index = -1;
             for (int i = 0; i < book_num; i++) {
                 if (strcmp(book[i].author, a_name) == 0) {
                     printf(
@@ -180,6 +183,7 @@ void search_book() {
         return;
     }
 }
+
 void list_book() {
     if (book_num == 0) {
         printf("当前没有书籍！\n");
@@ -187,11 +191,19 @@ void list_book() {
     }
     printf("========= 所有书籍 =========\n");
     printf("共 %d 本书\n\n", book_num);
+    printf(
+        "编号    书名                 作者               出版社            "
+        "          状态\n");
+    printf(
+        "-------------------------------------------------------------------"
+        "-----------------------------\n");
     for (int i = 0; i < book_num; i++) {
-        printf("编号: %d\n书籍: %s\n作者: %s\n出版社: %s\n状态: %s\n\n",
-               book[i].id, book[i].name, book[i].author, book[i].publish,
-               status[book[i].statut]);
+        printf("%-6d %-19s %-19s %-29s %-6d\n", book[i].id, book[i].name,
+               book[i].author, book[i].publish, book[i].statut);
     }
+    printf(
+        "-------------------------------------------------------------------"
+        "-----------------------------\n");
 }
 
 void sort_book() {
@@ -228,7 +240,7 @@ void sort_book() {
 }
 
 void menu() {
-    printf("=== 菜单 ===\n");
+    printf("======== 菜单 ========\n");
     printf("1. 添加书籍\n");
     printf("2. 删除书籍\n");
     printf("3. 查询书籍\n");
