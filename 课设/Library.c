@@ -71,10 +71,11 @@ void borrow() {
         return;
     }
     if (book[idex].statut == 1) {
-        printf("该书已被借走。");
+        printf("该书已被借走。\n");
         return;
     }
     book[idex].statut = 1;
+    printf("借阅成功！\n");
     return;
 }
 
@@ -298,19 +299,41 @@ void add_book() {
         printf("书籍数量已达上限，无法添加！\n");
         return;
     }
-    getchar();
+    // getchar();
 
-    printf("请输入书籍名称：");
-    fgets(book[book_num].name, sizeof(book[book_num].name), stdin);
-    book[book_num].name[strcspn(book[book_num].name, "\n")] = '\0';
+    // 检查书籍名称
+    while (1) {
+        printf("请输入书籍名称：");
+        fgets(book[book_num].name, sizeof(book[book_num].name), stdin);
+        book[book_num].name[strcspn(book[book_num].name, "\n")] = '\0';
+        if (strlen(book[book_num].name) > 0) {
+            break;
+        }
+        printf("书籍名称不能为空，请重新输入！\n");
+    }
 
-    printf("请输入书籍作者：");
-    fgets(book[book_num].author, sizeof(book[book_num].author), stdin);
-    book[book_num].author[strcspn(book[book_num].author, "\n")] = '\0';
+    // 检查作者
+    while (1) {
+        printf("请输入书籍作者：");
+        fgets(book[book_num].author, sizeof(book[book_num].author), stdin);
+        book[book_num].author[strcspn(book[book_num].author, "\n")] = '\0';
+        if (strlen(book[book_num].author) > 0) {
+            break;
+        }
+        printf("作者名称不能为空，请重新输入！\n");
+    }
 
-    printf("请输入出版社名称：");
-    fgets(book[book_num].publish, sizeof(book[book_num].publish), stdin);
-    book[book_num].publish[strcspn(book[book_num].publish, "\n")] = '\0';
+    // 检查出版社
+    while (1) {
+        printf("请输入出版社名称：");
+        fgets(book[book_num].publish, sizeof(book[book_num].publish), stdin);
+        book[book_num].publish[strcspn(book[book_num].publish, "\n")] = '\0';
+        if (strlen(book[book_num].publish) > 0) {
+            break;
+        }
+        printf("出版社名称不能为空，请重新输入！\n");
+    }
+
     book[book_num].statut = 0;
     book[book_num].id = book_num + 1;
     book_num++;
@@ -350,7 +373,7 @@ void delete_book() {
         printf("请输入要删除的书籍：");
         scanf("%19s", name);
         getchar();
-        int index = -1;
+        // int index = -1;
         for (int i = 0; i < book_num; i++) {
             if (strcmp(book[i].name, name) == 0) {
                 index = i;
@@ -490,10 +513,10 @@ void revise() {
         printf("未找到书籍编号 %d！\n", id);
         return;
     }
-    printf("========要修改内容========");
-    printf("1.修改作者名");
-    printf("2.修改书名");
-    printf("3.修改状态");
+    printf("========要修改内容========\n");
+    printf("1.修改作者名\n");
+    printf("2.修改书名\n");
+    printf("3.修改状态\n");
     printf("请输入：");
     int option;
     scanf("%d", &option);
