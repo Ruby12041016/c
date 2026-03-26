@@ -1,12 +1,10 @@
-alice
+Alice
 123456
-bob
+Bob
 234567
-admin
+Admin
 0
 sxy
 123456
-www
-111
 zxl
 1234567890
