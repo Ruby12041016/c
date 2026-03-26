@@ -1,40 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#define BOOK_MAX 10000
-#define ACCOUNT_MAX 10000
+#include "Library.h"
+
+// 全局变量定义
 int book_num = 0;
 int account_num = 0;
-
-void add_book();
-void delete_book();
-void search_book();
-void list_book();
-void sort_book();
-void count_book();
-void revise();
-void loaddata();
-void savedata();
-void menu();
-
-// 图书基本信息结构体
-typedef struct Book {
-    int id;            // 书籍编号
-    char author[20];   // 作者
-    char name[20];     // 书名
-    char publish[30];  // 出版社
-    int statut;        // 状态
-} Book;
-
-typedef struct Account {
-    char username[20];
-    int password;
-} Account;
-
 char* status[] = {"未被借阅", "已被借阅"};
-
 Book book[BOOK_MAX];  // 学生基本信息结构体数组
 Account account[ACCOUNT_MAX];
+char current_name[20] = " ";
 
 // 比较函数，用于排序
 int compare_by_id(const void* a, const void* b) {
@@ -48,6 +20,24 @@ int compare_by_name(const void* a, const void* b) {
     Book* book2 = (Book*)b;
     return strcmp(book1->name, book2->name);
 }
+// 逆序比较函数
+int compare_by_id_desc(const void* a, const void* b) {
+    Book* book1 = (Book*)a;
+    Book* book2 = (Book*)b;
+    return book2->id - book1->id;
+}
+
+int compare_by_name_desc(const void* a, const void* b) {
+    Book* book1 = (Book*)a;
+    Book* book2 = (Book*)b;
+    return strcmp(book2->name, book1->name);
+}
+
+int compare_by_author_desc(const void* a, const void* b) {
+    Book* book1 = (Book*)a;
+    Book* book2 = (Book*)b;
+    return strcmp(book2->author, book1->author);
+}
 
 int compare_by_author(const void* a, const void* b) {
     Book* book1 = (Book*)a;
@@ -56,6 +46,7 @@ int compare_by_author(const void* a, const void* b) {
 }
 
 void borrow() {
+    list_book();
     printf("请输入要借的书的编号：");
     int id = 0;
     scanf("%d", &id);
@@ -75,14 +66,38 @@ void borrow() {
         return;
     }
     book[idex].statut = 1;
+    strcpy(book[idex].bow, current_name);
     printf("借阅成功！\n");
     return;
+}
+
+void show_user() {
+    int borrow_count = 0;
+    printf("借书数量：");
+    for (int i = 0; i < book_num; i++) {
+        if (book[i].statut == 1 && strcmp(book[i].bow, current_name) == 0) {
+            borrow_count++;
+        }
+    }
+    printf("%d\n", borrow_count);
+    if (borrow_count > 0) {
+        printf("借的书：\n");
+        printf("------------------------\n");
+        for (int i = 0; i < book_num; i++) {
+            if (book[i].statut == 1 && strcmp(book[i].bow, current_name) == 0) {
+                printf("编号: %d\n书籍: %s\n作者: %s\n出版社: %s\n", book[i].id,
+                       book[i].name, book[i].author, book[i].publish);
+                printf("------------------------\n");
+            }
+        }
+    }
 }
 
 int sign_in() {
     printf("请输入账户名：");
     char name[20];
     scanf("%19s", name);
+    strcpy(current_name, name);
     int found = -1;
     int chance = 3;
     for (int i = 0; i < account_num; i++) {
@@ -111,6 +126,7 @@ int sign_in() {
             printf("请输入密码：");
             scanf("%d", &pass);
             if (account[found].password == pass) {
+                show_user();
                 return 1;
             } else {
                 chance--;
@@ -174,14 +190,6 @@ void search_book() {
             printf("请输入正确选项！\n");
             return;
     }
-    printf("是否借阅该书(Y/N)：\n");
-    char resp;
-    scanf(" %c", &resp);
-    if (resp == 'Y' || resp == 'y') {
-        borrow();
-    } else {
-        return;
-    }
 }
 
 void list_book() {
@@ -198,8 +206,8 @@ void list_book() {
         "-------------------------------------------------------------------"
         "-----------------------------\n");
     for (int i = 0; i < book_num; i++) {
-        printf("%-6d %-19s %-19s %-29s %-6d\n", book[i].id, book[i].name,
-               book[i].author, book[i].publish, book[i].statut);
+        printf("%-6d %-19s %-19s %-29s %-10s\n", book[i].id, book[i].name,
+               book[i].author, book[i].publish, status[book[i].statut]);
     }
     printf(
         "-------------------------------------------------------------------"
@@ -218,18 +226,50 @@ void sort_book() {
     printf("请选择：");
     int option;
     scanf("%d", &option);
+
+    printf("========= 排序方式 =========\n");
+    printf("1. 升序\n");
+    printf("2. 降序\n");
+    printf("请选择：");
+    int order;
+    scanf("%d", &order);
+
     switch (option) {
         case 1:
-            qsort(book, book_num, sizeof(Book), compare_by_id);
-            printf("已按编号排序！\n");
+            if (order == 1) {
+                qsort(book, book_num, sizeof(Book), compare_by_id);
+                printf("已按编号升序排序！\n");
+            } else if (order == 2) {
+                qsort(book, book_num, sizeof(Book), compare_by_id_desc);
+                printf("已按编号降序排序！\n");
+            } else {
+                printf("请输入正确选项！\n");
+                return;
+            }
             break;
         case 2:
-            qsort(book, book_num, sizeof(Book), compare_by_name);
-            printf("已按书名排序！\n");
+            if (order == 1) {
+                qsort(book, book_num, sizeof(Book), compare_by_name);
+                printf("已按书名升序排序！\n");
+            } else if (order == 2) {
+                qsort(book, book_num, sizeof(Book), compare_by_name_desc);
+                printf("已按书名降序排序！\n");
+            } else {
+                printf("请输入正确选项！\n");
+                return;
+            }
             break;
         case 3:
-            qsort(book, book_num, sizeof(Book), compare_by_author);
-            printf("已按作者排序！\n");
+            if (order == 1) {
+                qsort(book, book_num, sizeof(Book), compare_by_author);
+                printf("已按作者升序排序！\n");
+            } else if (order == 2) {
+                qsort(book, book_num, sizeof(Book), compare_by_author_desc);
+                printf("已按作者降序排序！\n");
+            } else {
+                printf("请输入正确选项！\n");
+                return;
+            }
             break;
         default:
             printf("请输入正确选项！\n");
@@ -237,6 +277,34 @@ void sort_book() {
     }
     // 显示排序结果
     list_book();
+}
+void return_book() {
+    printf("请输入要还的书的编号：");
+    int id = 0;
+    scanf("%d", &id);
+    int idex = -1;
+    for (int i = 0; i < book_num; i++) {
+        if (book[i].id == id) {
+            idex = i;
+            break;
+        }
+    }
+    if (idex == -1) {
+        printf("请输入正确编号！\n");
+        return;
+    }
+    if (book[idex].statut == 0) {
+        printf("该书未被借阅。\n");
+        return;
+    }
+    if (strcmp(book[idex].bow, current_name) != 0) {
+        printf("您不是该书的借阅者！\n");
+        return;
+    }
+    book[idex].statut = 0;
+    strcpy(book[idex].bow, "无");
+    printf("还书成功！\n");
+    return;
 }
 
 void menu() {
@@ -248,6 +316,8 @@ void menu() {
     printf("5. 排序\n");
     printf("6. 书籍统计\n");
     printf("7. 修改书籍信息\n");
+    printf("8. 借书\n");
+    printf("9. 还书\n");
     printf("0. 退出系统\n");
     printf("请选择操作：\n");
 }
@@ -296,6 +366,14 @@ int main() {
                 break;
             case 7:
                 revise();
+                savedata();
+                break;
+            case 8:
+                borrow();
+                savedata();
+                break;
+            case 9:
+                return_book();
                 savedata();
                 break;
             default:
@@ -348,6 +426,7 @@ void add_book() {
 
     book[book_num].statut = 0;
     book[book_num].id = book_num + 1;
+    strcpy(book[book_num].bow, "无");
     book_num++;
     printf("书籍添加成功！当前总书籍数：%d\n", book_num);
 }
@@ -419,12 +498,10 @@ void loaddata() {
         printf("文件不存在！\n");
         book_num = 0;
     } else {
-        char line_book[100];
-        fgets(line_book, sizeof(line_book), fp_book);
         for (int i = 0; i < BOOK_MAX; i++) {
-            if (fscanf(fp_book, "%d %19s %19s %29s %d\n", &book[i].id,
+            if (fscanf(fp_book, "%6d %19s %19s %29s %19s %6d\n", &book[i].id,
                        book[i].name, book[i].author, book[i].publish,
-                       &book[i].statut) == 5) {
+                       book[i].bow, &book[i].statut) == 6) {
                 count_book++;
             } else {
                 break;
@@ -459,13 +536,10 @@ void savedata() {
         perror("文件打开错误！\n");
         return;
     }
-    /* 输出对齐的列（空格分隔），与 loaddata 的 fscanf 格式兼容 */
-    fprintf(fp_book,
-            "编号    书名                 作者               出版社            "
-            "             状态\n");
     for (int i = 0; i < book_num; i++) {
-        fprintf(fp_book, "%-6d %-19s %-19s %-29s %-6d\n", book[i].id,
-                book[i].name, book[i].author, book[i].publish, book[i].statut);
+        fprintf(fp_book, "%-6d %-19s %-19s %-29s %-19s %-6d\n", book[i].id,
+                book[i].name, book[i].author, book[i].publish, book[i].bow,
+                book[i].statut);
     }
     fclose(fp_book);
 
@@ -549,10 +623,15 @@ void revise() {
             int new_statut;
             printf("请输入新的状态(0-未被借阅，1-已被借阅)：");
             scanf("%d", &new_statut);
+            if (book[record_index].statut == 0 && new_statut == 1) {
+                strcpy(book[record_index].bow, current_name);
+            } else if (book[record_index].statut == 1 && new_statut == 0) {
+                strcpy(book[record_index].bow, "无");
+            }
             book[record_index].statut = new_statut;
             break;
         default:
-            printf("请输入正确编号！");
+            printf("请输入正确编号！\n");
             break;
     }
     count_book();
